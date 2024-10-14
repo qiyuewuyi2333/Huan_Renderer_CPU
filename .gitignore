@@ -1,0 +1,4 @@
+out/
+*.code-workspace
+CMakePresets.json
+.vscode/
