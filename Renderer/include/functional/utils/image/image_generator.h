@@ -1,5 +1,6 @@
 #pragma once
 #include "functional/utils/image/image.h"
+#include <memory>
 #include <string_view>
 namespace huan_renderer_cpu
 {
@@ -14,7 +15,7 @@ class ImageGenerator
     static void destroy_instance();
     static ImageGenerator* get_instance();
 
-    void save(std::string_view path, const Image& image);
+    void save(std::string_view path, const std::shared_ptr<huan_renderer_cpu::functional::Image>& image);
 
   private:
     static ImageGenerator* instance;

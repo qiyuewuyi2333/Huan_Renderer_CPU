@@ -3,8 +3,9 @@ namespace huan_renderer_cpu
 {
 namespace functional
 {
-Image::Image(size_t width, size_t height) : width(width), height(height), pixels(width * height)
+Image::Image(uint32_t width, uint32_t height) : width(width), height(height)
 {
+    pixels.resize(width * height);
 }
 
 Image::Image(const Image& image)
@@ -24,26 +25,26 @@ Image::~Image()
 {
     pixels.clear();
 }
-void Image::set_pixel(size_t x, size_t y, float r, float g, float b)
+void Image::set_pixel(uint32_t x, uint32_t y, float r, float g, float b)
 {
     int index = x + y * width;
     pixels[index] = Color(r, g, b);
 }
-void Image::set_pixel(size_t x, size_t y, const Color& color)
+void Image::set_pixel(uint32_t x, uint32_t y, const Color& color)
 {
     int index = x + y * width;
     pixels[index] = color;
 }
-Color Image::get_pixel(size_t x, size_t y) const
+Color Image::get_pixel(uint32_t x, uint32_t y) const
 {
     int index = x + y * width;
     return pixels[index];
 }
-size_t Image::get_width() const
+uint32_t Image::get_width() const
 {
     return width;
 }
-size_t Image::get_height() const
+uint32_t Image::get_height() const
 {
     return height;
 }

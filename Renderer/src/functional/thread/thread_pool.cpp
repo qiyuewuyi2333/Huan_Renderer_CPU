@@ -1,4 +1,5 @@
 #include "functional/thread/thread_pool.h"
+#include "functional/thread/parallel_task.h"
 #include <algorithm>
 
 namespace huan_renderer_cpu
@@ -52,20 +53,39 @@ void ThreadPool::worker(ThreadPool* pool)
 
 Task* ThreadPool::get_task()
 {
-    std::unique_lock<std::mutex> guard(lock);
+    Guard guard(lock);
     if (tasks.empty())
     {
         return nullptr;
     }
     Task* task = tasks.front();
-    tasks.pop_front();
+    tasks.pop();
     return task;
 }
 
 void ThreadPool::add_task(Task* task)
 {
-    std::unique_lock<std::mutex> guard(lock);
-    tasks.push_back(task);
+    Guard guard(lock);
+    tasks.push(task);
+}
+void ThreadPool::wait()
+{
+    while (!tasks.empty())
+    {
+        std::this_thread::yield();
+    }
+}
+
+void ThreadPool::parallel_for(uint32_t width, uint32_t height,const std::function<void(uint32_t, uint32_t)>& func)
+{
+    Guard guard(lock);
+    for (size_t x = 0; x < width; x++)
+    {
+        for (size_t y = 0; y < height; y++)
+        {
+            tasks.push(new ParallelTask(x, y, func));
+        }
+    }
 }
 
 } // namespace functional
