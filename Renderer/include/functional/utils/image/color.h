@@ -1,5 +1,5 @@
 #pragma once
-
+#include "math/vec.h"
 namespace huan_renderer_cpu
 {
     struct Color
@@ -8,6 +8,22 @@ namespace huan_renderer_cpu
         float operator[](int index)
         {
             return (&r)[index];
+        }
+        Color()
+        {
+            
+        }
+        Color(const math::vec3& c)
+        {
+            r = c.x;
+            g = c.y;
+            b = c.z;
+        }
+        Color(float r, float g, float b)
+        {
+            this->r = r;
+            this->g = g;
+            this->b = b;
         }
     };
 }

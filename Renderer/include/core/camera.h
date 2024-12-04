@@ -8,7 +8,11 @@
 
 namespace huan_renderer_cpu
 {
-
+/**
+ * @brief 241027 Now it's a really simple camera, whose pos is original point and looking along with the negative z-axis
+            And there is a viewport has 1.0 distance to camera, that means the viewport's center is (0,0,-1)
+ * 
+ */
 class Camera
 {
   public:
@@ -32,7 +36,7 @@ class Camera
         Horizontal
     };
     Camera(std::shared_ptr<huan_renderer_cpu::functional::Image> image, CameraType type = CameraType::Perspective,
-           const math::vec3& pos = {0.0f, 0.0f, 0.0f}, const math::vec3& view_point = {0.0f, 0.0f, 0.0f});
+           const math::vec3& pos = {0.0f, 0.0f, 0.0f}, const math::vec3& view_point = {0.0f, 0.0f, -1.0f});
     Ray generate_ray(const math::vec2& pixel_coord, const math::vec2& offset = {0.5, 0.5}) const;
 
   private:

@@ -2,6 +2,16 @@
 
 namespace huan_renderer_cpu
 {
+
+    /**
+     * @brief Construct a new Camera:: Camera object
+     *        Use original view_port_height and image parameters to define the port_width
+     * 
+     * @param image 
+     * @param type 
+     * @param pos 
+     * @param view_point 
+     */
 Camera::Camera(std::shared_ptr<huan_renderer_cpu::functional::Image> image, CameraType type, const math::vec3& pos,
                const math::vec3& view_point)
     : m_image(image), m_type(type), m_pos(pos), m_view_point(view_point), m_world_up({0.0f, 1.0f, 0.0f}),
@@ -14,7 +24,7 @@ Camera::Camera(std::shared_ptr<huan_renderer_cpu::functional::Image> image, Came
     viewport_v = math::vec3(0, -viewport_height, 0);
     pixel_delta_u = viewport_u / static_cast<float>(m_image->get_width());
     pixel_delta_v = viewport_v / static_cast<float>(m_image->get_height());
-
+    // Calculate the first pixel for view port, which is the uper-left from the view of camera
     viewport_upper_left = m_pos - math::vec3(0, 0, focal_length) - viewport_u / 2 - viewport_v / 2;
     pixel00_loc = viewport_upper_left + 0.5 * (pixel_delta_u + pixel_delta_v);
 }

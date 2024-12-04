@@ -10,7 +10,9 @@ namespace functional
 class ImageGenerator
 {
   public:
-    ImageGenerator() : image_comment("# HUAN CREATED") {}
+    ImageGenerator() : image_comment("# HUAN CREATED")
+    {
+    }
     static void create_instance();
     static void destroy_instance();
     static ImageGenerator* get_instance();

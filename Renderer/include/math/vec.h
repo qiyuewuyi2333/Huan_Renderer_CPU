@@ -10,7 +10,6 @@ class vec2;
 class vec3;
 class vec4;
 
-
 class vec2
 {
   public:
@@ -60,7 +59,7 @@ class vec3
     {
         return vec3{rhs.x + lhs.x, rhs.y + lhs.y, rhs.z + lhs.z};
     }
-    inline constexpr vec3 operator+=(const vec3& other) 
+    inline constexpr vec3 operator+=(const vec3& other)
     {
         return vec3{x + other.x, y + other.y, z + other.z};
     }
@@ -72,11 +71,15 @@ class vec3
     {
         return vec3{x - other.x, y - other.y, z - other.z};
     }
-    inline constexpr vec3 operator*(const float rhs) 
+    inline constexpr vec3 operator*(const float rhs)
     {
         return vec3{x * rhs, y * rhs, z * rhs};
     }
     inline constexpr friend vec3 operator*(const float rhs, const vec3& lhs)
+    {
+        return vec3{rhs * lhs.x, rhs * lhs.y, rhs * lhs.z};
+    }
+    inline constexpr friend vec3 operator*(const vec3& lhs, const float rhs)
     {
         return vec3{rhs * lhs.x, rhs * lhs.y, rhs * lhs.z};
     }

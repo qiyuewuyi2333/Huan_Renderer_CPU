@@ -2,6 +2,7 @@
 #include "core/core.h"
 #include <filesystem>
 #include <fstream>
+#include <iostream>
 
 namespace huan_renderer_cpu
 {
@@ -36,6 +37,11 @@ ImageGenerator* ImageGenerator::get_instance()
 
 void ImageGenerator::save(std::string_view path, const std::shared_ptr<huan_renderer_cpu::functional::Image>& image)
 {
+
+
+    // 输出文件路径
+    std::cout << "Saving image to: " << path << std::endl;
+
     std::ofstream file(path.data(), std::ios_base::out | std::ios::binary);
     RENDERER_ASSERT(file.is_open(), "Failed to open file:" + path);
 

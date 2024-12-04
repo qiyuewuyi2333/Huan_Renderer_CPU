@@ -2,3 +2,6 @@ out/
 *.code-workspace
 CMakePresets.json
 .vscode/
+.vs/
+.cache/
+.clangd
