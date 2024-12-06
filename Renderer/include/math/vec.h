@@ -162,11 +162,33 @@ class vec3
         static_assert(std::is_arithmetic<T>::value, "Scalar must be a numeric type");
         return vec3{x / scalar, y / scalar, z / scalar};
     }
+    constexpr vec3& operator/=(T scalar)
+    {
+        static_assert(std::is_arithmetic<T>::value, "Scalar must be a numeric type");
+        x /= scalar;
+        y /= scalar;
+        z /= scalar;
+        return *this;
+    }
 
     // Component-wise multiplication and division
     constexpr vec3 operator*(const vec3& other) const
     {
         return vec3{x * other.x, y * other.y, z * other.z};
+    }
+    constexpr vec3& operator*=(const vec3& other)
+    {
+        x *= other.x;
+        y *= other.y;
+        z *= other.z;
+        return *this;
+    }
+    constexpr vec3& operator*=(T scalar)
+    {
+        x *= scalar;
+        y *= scalar;
+        z *= scalar;
+        return *this;
     }
 
     constexpr vec3 operator/(const vec3& other) const

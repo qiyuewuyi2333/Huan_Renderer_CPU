@@ -1,4 +1,6 @@
 #include "core/camera.h"
+#include "functional/utils/image/random.h"
+#include "math/vec.h"
 
 namespace huan_renderer_cpu
 {
@@ -39,4 +41,19 @@ Ray Camera::generate_ray(const math::vec2<double>& pixel_coord, const math::vec2
     return {m_pos, ray_direction};
 }
 
+Ray Camera::generate_ray_random_sample(const math::vec2<double>& pixel_coord) const
+{
+    auto offset = sample_square();
+    auto i = pixel_coord.x + offset.x;
+    auto j = pixel_coord.y + offset.y;
+    auto pixel_center = pixel00_loc + (i * pixel_delta_u) + (j * pixel_delta_v);
+    auto ray_direction = pixel_center - m_pos;
+
+    return {m_pos, ray_direction};
+}
+
+math::vec3<double> Camera::sample_square() const
+{
+    return math::vec3<double>{random_double() - 0.5, random_double() - 0.5, 0};
+}
 } // namespace huan_renderer_cpu

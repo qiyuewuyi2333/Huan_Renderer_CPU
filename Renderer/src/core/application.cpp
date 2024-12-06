@@ -9,6 +9,17 @@ namespace huan_renderer_cpu
 
 void Application::render()
 {
+    if (m_render_setting.enable_anti_aliasing)
+    {
+        render_anti_aliasing();
+    }
+    else
+    {
+        render_normal();
+    }
+}
+void Application::render_normal()
+{
 
     // NOTE: 在多线程外访问共享变量时一定要小心，可能会存在释放的问题，总之，要小心！
     m_thread_pool->parallel_for(m_image->get_width(), m_image->get_height(), [&](uint32_t x, uint32_t y) {
@@ -28,6 +39,32 @@ void Application::render()
                                          huan_renderer_cpu::math::vec3{1.0, 1.0, 1.0} * (1.0f - percent_blue));
             m_image->set_pixel(x, y, tar_color);
         }
+    });
+    m_thread_pool->wait();
+}
+void Application::render_anti_aliasing()
+{
+
+    m_thread_pool->parallel_for(m_image->get_width(), m_image->get_height(), [&](uint32_t x, uint32_t y) {
+        double percent_blue = 1.0 - static_cast<double>(y) / m_image->get_height();
+
+        huan_renderer_cpu::math::vec3<double> target_color{0.0, 0.0, 0.0};
+        for (int i = 0; i < m_render_setting.sample_count; ++i)
+        {
+            auto ray = m_camera->generate_ray_random_sample({static_cast<double>(x), static_cast<double>(y)});
+            auto result = m_scene.intersect(ray, {0, 10000});
+            if (result.has_value())
+            {
+                target_color += ((result.get_normal() + huan_renderer_cpu::math::vec3<double>{1, 1, 1}) / 2);
+            }
+            else
+            {
+                target_color += huan_renderer_cpu::math::vec3{0.53, 0.8, 0.92} * percent_blue +
+                                huan_renderer_cpu::math::vec3{1.0, 1.0, 1.0} * (1.0f - percent_blue);
+            }
+        }
+        target_color *= m_render_setting.sample_scale;
+        m_image->set_pixel(x, y, target_color);
     });
     m_thread_pool->wait();
 }

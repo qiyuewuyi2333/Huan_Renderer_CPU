@@ -1,7 +1,6 @@
 #pragma once
 
 #include "functional/thread/thread_pool.h"
-#include "functional/thread/task.h"
 #include "functional/utils/image/image.h"
 #include "core/camera.h"
 #include "core/hittable_lists.h"
@@ -15,8 +14,8 @@ struct ApplicationSetting
 struct RenderSetting
 {
     bool enable_anti_aliasing = true; // Enable or disable anti-aliasing
-    int sample_count = 10;            // Number of samples for anti-aliasing
-    // sample_scale
+    int sample_count = 100;           // Number of samples for anti-aliasing
+    double sample_scale = 1.0 / sample_count;
 
     // Image
     std::string image_format = "ppm"; // Format of the rendered image
@@ -49,6 +48,8 @@ class Application
 
   public:
     void render();
+    void render_normal();
+    void render_anti_aliasing();
 
   public:
     void initialize();

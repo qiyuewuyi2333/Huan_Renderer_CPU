@@ -39,6 +39,8 @@ class Camera
            const math::vec3<double>& pos = {0.0f, 0.0f, 0.0f},
            const math::vec3<double>& view_point = {0.0f, 0.0f, -1.0f});
     Ray generate_ray(const math::vec2<double>& pixel_coord, const math::vec2<double>& offset = {0.5, 0.5}) const;
+    Ray generate_ray_random_sample(const math::vec2<double>& pixel_coord) const;
+    math::vec3<double> sample_square() const;
 
   private:
     std::shared_ptr<huan_renderer_cpu::functional::Image> m_image;
