@@ -1,0 +1,31 @@
+#pragma once
+#include <cstdlib>
+#include <random>
+#include "math/core.h"
+
+namespace huan_renderer_cpu
+{
+
+inline double degrees_to_radians(double degrees)
+{
+    return degrees * math::MY_PI / 180.0;
+}
+
+inline double random_double()
+{
+    // Returns a random real in [0,1).
+    static std::uniform_real_distribution<double> distribution(0.0, 1.0);
+    static std::mt19937 generator;
+    return distribution(generator);
+}
+
+inline double random_double(double min, double max)
+{
+    // Returns a random real in [min,max).
+
+    static std::mt19937 generator;
+    std::uniform_real_distribution<double> distribution(min, max);
+    return distribution(generator);
+}
+
+} // namespace huan_renderer_cpu

@@ -38,7 +38,6 @@ ImageGenerator* ImageGenerator::get_instance()
 void ImageGenerator::save(std::string_view path, const std::shared_ptr<huan_renderer_cpu::functional::Image>& image)
 {
 
-
     // 输出文件路径
     std::cout << "Saving image to: " << path << std::endl;
 
@@ -53,10 +52,9 @@ void ImageGenerator::save(std::string_view path, const std::shared_ptr<huan_rend
     {
         for (size_t x = 0; x < width; ++x)
         {
-            const auto& pixel = image->get_pixel(x, y);
+            const auto& pixel = image->get_pixel(x, y).norm_color_to_255();
 
-            file << static_cast<char>(pixel.r * 255) << static_cast<char>(pixel.g * 255)
-                 << static_cast<char>(pixel.b * 255);
+            file << static_cast<char>(pixel.x) << static_cast<char>(pixel.y) << static_cast<char>(pixel.z);
         }
     }
 }

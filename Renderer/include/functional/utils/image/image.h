@@ -15,22 +15,23 @@ namespace functional
 class Image
 {
   public:
-    Image(uint32_t width, uint32_t height);
+    Image(uint32_t width, uint32_t height, double aspect_ratio);
     Image(const Image& image);
     Image(Image&& image) = delete;
     Image& operator=(const Image& image);
     Image& operator=(Image&& image) = delete;
     ~Image();
 
-    void set_pixel(uint32_t x, uint32_t y, float r, float g, float b);
+    void set_pixel(uint32_t x, uint32_t y, double r, double g, double b);
     void set_pixel(uint32_t x, uint32_t y, const Color& color);
     Color get_pixel(uint32_t x, uint32_t y) const;
     uint32_t get_width() const;
     uint32_t get_height() const;
 
   private:
-    uint32_t width, height;
-    std::vector<Color> pixels;
+    uint32_t m_width, m_height;
+    std::vector<Color> m_pixels;
+    double m_aspect_ratio;
 };
 } // namespace functional
 } // namespace huan_renderer_cpu

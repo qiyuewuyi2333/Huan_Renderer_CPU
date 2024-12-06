@@ -12,28 +12,28 @@ namespace math
 class mat4x4
 {
   public:
-    float m[4][4];
+    double m[4][4];
 
-    mat4x4(float init = 0.0f)
+    mat4x4(double init = 0.0f)
     {
         for (int i = 0; i < 4; i++)
         {
             m[i][i] = init;
         }
     }
-    inline float& operator()(int row, int col)
+    inline double& operator()(int row, int col)
     {
         return m[row][col];
     }
-    inline const float& operator()(int row, int col) const
+    inline const double& operator()(int row, int col) const
     {
         return m[row][col];
     }
-    inline float* operator[](int row)
+    inline double* operator[](int row)
     {
         return m[row];
     }
-    inline const float* operator[](int row) const
+    inline const double* operator[](int row) const
     {
         return m[row];
     }
@@ -44,7 +44,7 @@ class mat4x4
         {
             for (int j = 0; j < 4; ++j)
             {
-                float sum = 0;
+                double sum = 0;
                 for (int k = 0; k < 4; ++k)
                 {
                     sum += (*this)[i][k] * rhs[k][j];
@@ -61,7 +61,7 @@ class mat4x4
         {
             for (int j = 0; j < 4; ++j)
             {
-                float sum = 0;
+                double sum = 0;
                 for (int k = 0; k < 4; ++k)
                 {
                     sum += lhs[i][k] * rhs[k][j];
@@ -93,12 +93,12 @@ class mat4x4
         *this = *this + rhs;
         return *this;
     }
-    inline friend vec4 operator*(const mat4x4& lhs, const vec4& rhs)
+    inline friend vec4<double> operator*(const mat4x4& lhs, const vec4<double>& rhs)
     {
-        return vec4(lhs.m[0][0] * rhs.x + lhs.m[0][1] * rhs.y + lhs.m[0][2] * rhs.z + lhs.m[0][3] * rhs.w,
-                    lhs.m[1][0] * rhs.x + lhs.m[1][1] * rhs.y + lhs.m[1][2] * rhs.z + lhs.m[1][3] * rhs.w,
-                    lhs.m[2][0] * rhs.x + lhs.m[2][1] * rhs.y + lhs.m[2][2] * rhs.z + lhs.m[2][3] * rhs.w,
-                    lhs.m[3][0] * rhs.x + lhs.m[3][1] * rhs.y + lhs.m[3][2] * rhs.z + lhs.m[3][3] * rhs.w);
+        return vec4<double>(lhs.m[0][0] * rhs.x + lhs.m[0][1] * rhs.y + lhs.m[0][2] * rhs.z + lhs.m[0][3] * rhs.w,
+                            lhs.m[1][0] * rhs.x + lhs.m[1][1] * rhs.y + lhs.m[1][2] * rhs.z + lhs.m[1][3] * rhs.w,
+                            lhs.m[2][0] * rhs.x + lhs.m[2][1] * rhs.y + lhs.m[2][2] * rhs.z + lhs.m[2][3] * rhs.w,
+                            lhs.m[3][0] * rhs.x + lhs.m[3][1] * rhs.y + lhs.m[3][2] * rhs.z + lhs.m[3][3] * rhs.w);
     }
 };
 inline mat4x4 inverse(mat4x4& matrix)
@@ -188,12 +188,12 @@ inline mat4x4 inverse(mat4x4& matrix)
     {
         for (unsigned j = 0; j < 4; j++)
         {
-            res[i][j] = float(Result[i][j] * det);
+            res[i][j] = double(Result[i][j] * det);
         }
     }
     return res;
 }
-inline float determinant(mat4x4& matrix)
+inline double determinant(mat4x4& matrix)
 {
     //
     // Inversion by Cramer's rule.  Code taken from an Intel publication
@@ -275,7 +275,7 @@ inline float determinant(mat4x4& matrix)
     det = src[0] * Result[0][0] + src[1] * Result[0][1] + src[2] * Result[0][2] + src[3] * Result[0][3];
     return det;
 }
-inline float toRadian(float degree)
+inline double toRadian(double degree)
 {
     return degree * MY_PI / 180.0f;
 }
@@ -288,10 +288,10 @@ inline float toRadian(float degree)
  * @param far
  * @return mat4x4
  */
-inline mat4x4 perspective(float fov, float aspect, float near, float far)
+inline mat4x4 perspective(double fov, double aspect, double near, double far)
 {
-    const float zRange = near - far;
-    const float tanHalfFOV = std::tan(toRadian(fov / 2.0));
+    const double zRange = near - far;
+    const double tanHalfFOV = std::tan(toRadian(fov / 2.0));
     mat4x4 m;
     m.m[0][0] = 1.0f / (tanHalfFOV * aspect);
     m.m[0][1] = 0.0f;
@@ -316,10 +316,10 @@ inline mat4x4 perspective(float fov, float aspect, float near, float far)
     return m;
 }
 
-inline mat4x4 look_at(const math::vec3& pos, const math::vec3& target, const math::vec3& up)
+inline mat4x4 look_at(const math::vec3<double>& pos, const math::vec3<double>& target, const math::vec3<double>& up)
 {
     vec3 zaxis = (pos - target).normalized(); // direction vector
-    vec3 xaxis =                             // right vector
+    vec3 xaxis =                              // right vector
         (cross(up.normalized(), zaxis)).normalized();
     vec3 yaxis = cross(zaxis, xaxis); // camera up vector
 

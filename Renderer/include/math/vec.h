@@ -1,115 +1,300 @@
 #pragma once
 
 #include <cmath>
+#include <type_traits>
+
 namespace huan_renderer_cpu
 {
 namespace math
 {
-// TODO FINISH
-class vec2;
-class vec3;
-class vec4;
 
+template <typename T = double>
 class vec2
 {
   public:
-    float x, y;
-    inline constexpr vec2 operator+(const vec2& other)
+    T x, y;
+
+    // Constructors
+    constexpr vec2() : x(T()), y(T())
+    {
+    }
+    constexpr vec2(T _x, T _y) : x(_x), y(_y)
+    {
+    }
+
+    // Arithmetic operators
+    constexpr vec2 operator+(const vec2& other) const
     {
         return vec2{x + other.x, y + other.y};
     }
-    inline constexpr vec2 operator-(const vec2& other)
+
+    constexpr vec2 operator-(const vec2& other) const
     {
         return vec2{x - other.x, y - other.y};
     }
-    inline constexpr friend vec2 operator-(const vec2& rhs, const vec2& lhs)
+
+    constexpr vec2 operator-() const
     {
-        return rhs - lhs;
+        return vec2{-x, -y};
     }
-    inline constexpr friend vec2 operator*(float scalar, const vec2& other)
+
+    constexpr vec2& operator+=(const vec2& other)
     {
-        return vec2{scalar * other.x, scalar * other.y};
+        x += other.x;
+        y += other.y;
+        return *this;
     }
-    inline constexpr vec2 operator*(const vec2& other)
+
+    constexpr vec2& operator-=(const vec2& other)
+    {
+        x -= other.x;
+        y -= other.y;
+        return *this;
+    }
+
+    // Scalar multiplication and division
+    constexpr vec2 operator*(T scalar) const
+    {
+        return vec2{x * scalar, y * scalar};
+    }
+
+    constexpr friend vec2 operator*(T scalar, const vec2& v)
+    {
+        return v * scalar;
+    }
+
+    constexpr vec2 operator/(T scalar) const
+    {
+        static_assert(std::is_arithmetic<T>::value, "Scalar must be a numeric type");
+        return vec2{x / scalar, y / scalar};
+    }
+
+    // Component-wise multiplication and division
+    constexpr vec2 operator*(const vec2& other) const
     {
         return vec2{x * other.x, y * other.y};
     }
-    inline constexpr friend vec2 operator*(const vec2& v, const float& val)
+
+    constexpr vec2 operator/(const vec2& other) const
     {
-        return vec2{v.x * val, v.y * val};
+        static_assert(std::is_arithmetic<T>::value, "Components must be numeric types");
+        return vec2{x / other.x, y / other.y};
     }
-    inline constexpr friend vec2 operator/(const vec2& other, const vec2& v)
+
+    // Dot product
+    constexpr T dot(const vec2& other) const
     {
-        return vec2{other.x / v.x, other.y / v.y};
+        return x * other.x + y * other.y;
     }
-    inline constexpr friend vec2 operator/(const vec2& other, float scalar)
+
+    // Normalization
+    constexpr vec2 normalized() const
     {
-        return vec2{other.x / scalar, other.y / scalar};
+        T len = std::sqrt(dot(*this));
+        return *this / len;
     }
-};
-class vec3
-{
-  public:
-    float x, y, z;
-    inline constexpr vec3 operator+(const vec3& other)
-    {
-        return vec3{x + other.x, y + other.y, z + other.z};
-    }
-    inline constexpr friend vec3 operator+(const vec3& rhs, const vec3& lhs)
-    {
-        return vec3{rhs.x + lhs.x, rhs.y + lhs.y, rhs.z + lhs.z};
-    }
-    inline constexpr vec3 operator+=(const vec3& other)
-    {
-        return vec3{x + other.x, y + other.y, z + other.z};
-    }
-    inline constexpr friend vec3 operator-(const vec3& rhs, const vec3& lhs)
-    {
-        return vec3{rhs.x - lhs.x, rhs.y - lhs.y, rhs.z - lhs.z};
-    }
-    inline constexpr vec3 operator-=(const vec3& other)
-    {
-        return vec3{x - other.x, y - other.y, z - other.z};
-    }
-    inline constexpr vec3 operator*(const float rhs)
-    {
-        return vec3{x * rhs, y * rhs, z * rhs};
-    }
-    inline constexpr friend vec3 operator*(const float rhs, const vec3& lhs)
-    {
-        return vec3{rhs * lhs.x, rhs * lhs.y, rhs * lhs.z};
-    }
-    inline constexpr friend vec3 operator*(const vec3& lhs, const float rhs)
-    {
-        return vec3{rhs * lhs.x, rhs * lhs.y, rhs * lhs.z};
-    }
-    inline constexpr vec3 operator/(const float rhs) const
-    {
-        return vec3{x / rhs, y / rhs, z / rhs};
-    }
-    inline constexpr float dot(const vec3& other) const
-    {
-        return x * other.x + y * other.y + z * other.z;
-    }
-    inline vec3 normalized() const
-    {
-        return *this / sqrt(dot(*this));
-    }
-    inline void normalize()
+
+    void normalize()
     {
         *this = normalized();
     }
 };
 
-inline vec3 cross(const vec3& rhs, const vec3& lhs)
+template <typename T = double>
+class vec3
 {
-    return vec3{rhs.y * lhs.z - rhs.z * lhs.y, rhs.z * lhs.x - rhs.x * lhs.z, rhs.x * lhs.y - rhs.y * lhs.x};
-}
+  public:
+    T x, y, z;
 
+    // Constructors
+    constexpr vec3() : x(T()), y(T()), z(T())
+    {
+    }
+    constexpr vec3(T _x, T _y, T _z) : x(_x), y(_y), z(_z)
+    {
+    }
+
+    // Arithmetic operators
+    constexpr vec3 operator+(const vec3& other) const
+    {
+        return vec3{x + other.x, y + other.y, z + other.z};
+    }
+
+    constexpr vec3 operator-(const vec3& other) const
+    {
+        return vec3{x - other.x, y - other.y, z - other.z};
+    }
+
+    constexpr vec3 operator-() const
+    {
+        return vec3{-x, -y, -z};
+    }
+
+    constexpr vec3& operator+=(const vec3& other)
+    {
+        x += other.x;
+        y += other.y;
+        z += other.z;
+        return *this;
+    }
+
+    constexpr vec3& operator-=(const vec3& other)
+    {
+        x -= other.x;
+        y -= other.y;
+        z -= other.z;
+        return *this;
+    }
+
+    // Scalar multiplication and division
+    constexpr vec3 operator*(T scalar) const
+    {
+        return vec3{x * scalar, y * scalar, z * scalar};
+    }
+
+    constexpr friend vec3 operator*(T scalar, const vec3& v)
+    {
+        return v * scalar;
+    }
+
+    constexpr vec3 operator/(T scalar) const
+    {
+        static_assert(std::is_arithmetic<T>::value, "Scalar must be a numeric type");
+        return vec3{x / scalar, y / scalar, z / scalar};
+    }
+
+    // Component-wise multiplication and division
+    constexpr vec3 operator*(const vec3& other) const
+    {
+        return vec3{x * other.x, y * other.y, z * other.z};
+    }
+
+    constexpr vec3 operator/(const vec3& other) const
+    {
+        static_assert(std::is_arithmetic<T>::value, "Components must be numeric types");
+        return vec3{x / other.x, y / other.y, z / other.z};
+    }
+
+    // Dot product
+    constexpr T dot(const vec3& other) const
+    {
+        return x * other.x + y * other.y + z * other.z;
+    }
+
+    // Cross product
+    constexpr friend vec3 cross(const vec3& lhs, const vec3& rhs)
+    {
+        return vec3{lhs.y * rhs.z - lhs.z * rhs.y, lhs.z * rhs.x - lhs.x * rhs.z, lhs.x * rhs.y - lhs.y * rhs.x};
+    }
+
+    // Normalization
+    constexpr vec3 normalized() const
+    {
+        T len = std::sqrt(dot(*this));
+        return *this / len;
+    }
+
+    void normalize()
+    {
+        *this = normalized();
+    }
+};
+
+template <typename T = double>
 class vec4
 {
   public:
-    float x, y, z, w;
+    T x, y, z, w;
+
+    // Constructors
+    constexpr vec4() : x(T()), y(T()), z(T()), w(T())
+    {
+    }
+    constexpr vec4(T _x, T _y, T _z, T _w) : x(_x), y(_y), z(_z), w(_w)
+    {
+    }
+
+    // Arithmetic operators
+    constexpr vec4 operator+(const vec4& other) const
+    {
+        return vec4{x + other.x, y + other.y, z + other.z, w + other.w};
+    }
+
+    constexpr vec4 operator-(const vec4& other) const
+    {
+        return vec4{x - other.x, y - other.y, z - other.z, w - other.w};
+    }
+
+    constexpr vec4 operator-() const
+    {
+        return vec4{-x, -y, -z, -w};
+    }
+
+    constexpr vec4& operator+=(const vec4& other)
+    {
+        x += other.x;
+        y += other.y;
+        z += other.z;
+        w += other.w;
+        return *this;
+    }
+
+    constexpr vec4& operator-=(const vec4& other)
+    {
+        x -= other.x;
+        y -= other.y;
+        z -= other.z;
+        w -= other.w;
+        return *this;
+    }
+
+    // Scalar multiplication and division
+    constexpr vec4 operator*(T scalar) const
+    {
+        return vec4{x * scalar, y * scalar, z * scalar, w * scalar};
+    }
+
+    constexpr friend vec4 operator*(T scalar, const vec4& v)
+    {
+        return v * scalar;
+    }
+
+    constexpr vec4 operator/(T scalar) const
+    {
+        static_assert(std::is_arithmetic<T>::value, "Scalar must be a numeric type");
+        return vec4{x / scalar, y / scalar, z / scalar, w / scalar};
+    }
+
+    // Component-wise multiplication and division
+    constexpr vec4 operator*(const vec4& other) const
+    {
+        return vec4{x * other.x, y * other.y, z * other.z, w * other.w};
+    }
+
+    constexpr vec4 operator/(const vec4& other) const
+    {
+        static_assert(std::is_arithmetic<T>::value, "Components must be numeric types");
+        return vec4{x / other.x, y / other.y, z / other.z, w / other.w};
+    }
+
+    // Dot product
+    constexpr T dot(const vec4& other) const
+    {
+        return x * other.x + y * other.y + z * other.z + w * other.w;
+    }
+
+    // Normalization
+    constexpr vec4 normalized() const
+    {
+        T len = std::sqrt(dot(*this));
+        return *this / len;
+    }
+
+    void normalize()
+    {
+        *this = normalized();
+    }
 };
+
 } // namespace math
 } // namespace huan_renderer_cpu
