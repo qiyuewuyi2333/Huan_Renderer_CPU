@@ -1,7 +1,9 @@
 #include "core/application.h"
+#include "core/ray.h"
 #include "functional/log/logger.h"
 #include "functional/utils/image/image_generator.h"
 #include <memory>
+#include "math/vec.h"
 #include "primitives/sphere.h"
 
 namespace huan_renderer_cpu
@@ -9,9 +11,10 @@ namespace huan_renderer_cpu
 
 void Application::render()
 {
-    if (m_render_setting.enable_anti_aliasing)
+    if (m_render_setting.render_model == "diffuse")
     {
-        render_anti_aliasing();
+        render_diffuse();
+        return;
     }
     else
     {
@@ -42,6 +45,7 @@ void Application::render_normal()
     });
     m_thread_pool->wait();
 }
+
 void Application::render_anti_aliasing()
 {
 
@@ -65,6 +69,34 @@ void Application::render_anti_aliasing()
         }
         target_color *= m_render_setting.sample_scale;
         m_image->set_pixel(x, y, target_color);
+    });
+    m_thread_pool->wait();
+}
+math::vec3<double> Application::trace_ray(const Ray& ray, int depth)
+{
+    if (depth <= 0)
+    {
+        return {0.0, 0.0, 0.0};
+    }
+    auto result = m_scene.intersect(ray, {0, 10000});
+
+    if (result.has_value())
+    {
+        math::vec3<double> new_dir = math::random_on_hemisphere(result.get_normal());
+        return 0.5 * trace_ray(Ray(result.get_intersect_point(), new_dir), depth - 1);
+    }
+
+    math::vec3<double> unit_direction = ray.direction.normalized();
+    auto blue_percent = 0.5 * (unit_direction.y + 1.0);
+    return (1.0 - blue_percent) * math::vec3<double>{1.0, 1.0, 1.0} +
+           blue_percent * math::vec3<double>{0.53, 0.8, 0.92};
+}
+
+void Application::render_diffuse()
+{
+    m_thread_pool->parallel_for(m_image->get_width(), m_image->get_height(), [&](uint32_t x, uint32_t y) {
+        auto ray = m_camera->generate_ray({static_cast<double>(x), static_cast<double>(y)});
+        m_image->set_pixel(x, y, trace_ray(ray, m_render_setting.bounce_depth));
     });
     m_thread_pool->wait();
 }

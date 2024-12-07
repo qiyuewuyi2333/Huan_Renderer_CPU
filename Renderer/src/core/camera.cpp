@@ -1,5 +1,5 @@
 #include "core/camera.h"
-#include "functional/utils/image/random.h"
+#include "functional/utils/random.h"
 #include "math/vec.h"
 
 namespace huan_renderer_cpu

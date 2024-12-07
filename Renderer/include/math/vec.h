@@ -2,6 +2,7 @@
 
 #include <cmath>
 #include <type_traits>
+#include "functional/utils/random.h"
 
 namespace huan_renderer_cpu
 {
@@ -220,7 +221,35 @@ class vec3
     {
         *this = normalized();
     }
+
+    inline static vec3 random()
+    {
+        return vec3(random_double(), random_double(), random_double());
+    }
+
+    inline static vec3 random(double min, double max)
+    {
+        return vec3(random_double(min, max), random_double(min, max), random_double(min, max));
+    }
 };
+inline vec3<double> random_unit_vector()
+{
+    while (true)
+    {
+        auto p = vec3<double>::random(-1, 1);
+        auto lensq = p.dot(p);
+        if (1e-160 < lensq && lensq <= 1)
+            return p / sqrt(lensq);
+    }
+}
+inline vec3<double> random_on_hemisphere(const vec3<double>& normal)
+{
+    vec3<double> on_unit_sphere = random_unit_vector();
+    if (on_unit_sphere.dot(normal) > 0.0) // In the same hemisphere as the normal
+        return on_unit_sphere;
+    else
+        return -on_unit_sphere;
+}
 
 template <typename T = double>
 class vec4

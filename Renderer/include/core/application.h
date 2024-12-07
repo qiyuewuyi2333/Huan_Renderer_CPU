@@ -5,6 +5,7 @@
 #include "core/camera.h"
 #include "core/hittable_lists.h"
 #include "functional/utils/image/image_generator.h"
+#include <string>
 namespace huan_renderer_cpu
 {
 struct ApplicationSetting
@@ -14,8 +15,10 @@ struct ApplicationSetting
 struct RenderSetting
 {
     bool enable_anti_aliasing = true; // Enable or disable anti-aliasing
-    int sample_count = 100;           // Number of samples for anti-aliasing
+    std::string render_model = "diffuse";
+    int sample_count = 100; // Number of samples for anti-aliasing
     double sample_scale = 1.0 / sample_count;
+    int bounce_depth = 100;
 
     // Image
     std::string image_format = "ppm"; // Format of the rendered image
@@ -50,6 +53,10 @@ class Application
     void render();
     void render_normal();
     void render_anti_aliasing();
+    void render_diffuse();
+
+  private:
+    math::vec3<double> trace_ray(const Ray& ray, int depth);
 
   public:
     void initialize();
