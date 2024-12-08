@@ -1,5 +1,6 @@
 #include "functional/utils/image/image_generator.h"
 #include "core/core.h"
+#include "math/vec.h"
 #include <filesystem>
 #include <fstream>
 #include <iostream>
@@ -52,11 +53,22 @@ void ImageGenerator::save(std::string_view path, const std::shared_ptr<huan_rend
     {
         for (size_t x = 0; x < width; ++x)
         {
-            const auto& pixel = image->get_pixel(x, y).norm_color_to_255();
+            auto pixel = image->get_pixel(x, y);
+            pixel.r = linear_to_gamma(pixel.r);
+            pixel.g = linear_to_gamma(pixel.g);
+            pixel.b = linear_to_gamma(pixel.b);
+            math::vec3<int> new_pixel = pixel.norm_color_to_255();
 
-            file << static_cast<char>(pixel.x) << static_cast<char>(pixel.y) << static_cast<char>(pixel.z);
+            file << static_cast<char>(new_pixel.x) << static_cast<char>(new_pixel.y) << static_cast<char>(new_pixel.z);
         }
     }
+}
+double ImageGenerator::linear_to_gamma(double linear_component)
+{
+    if (linear_component > 0)
+        return std::sqrt(linear_component);
+
+    return 0;
 }
 } // namespace functional
 } // namespace huan_renderer_cpu

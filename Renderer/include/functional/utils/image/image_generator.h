@@ -18,6 +18,7 @@ class ImageGenerator
     static ImageGenerator* get_instance();
 
     void save(std::string_view path, const std::shared_ptr<huan_renderer_cpu::functional::Image>& image);
+    double linear_to_gamma(double linear_component);
 
   private:
     static ImageGenerator* instance;

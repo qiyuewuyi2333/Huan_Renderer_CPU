@@ -5,6 +5,7 @@
 #include "core/camera.h"
 #include "core/hittable_lists.h"
 #include "functional/utils/image/image_generator.h"
+#include <cstdint>
 #include <string>
 namespace huan_renderer_cpu
 {
@@ -16,15 +17,16 @@ struct RenderSetting
 {
     bool enable_anti_aliasing = true; // Enable or disable anti-aliasing
     std::string render_model = "diffuse";
-    int sample_count = 100; // Number of samples for anti-aliasing
+    int sample_count = 50; // Number of samples for anti-aliasing
     double sample_scale = 1.0 / sample_count;
-    int bounce_depth = 100;
+    int max_bounce_depth = 50;
 
     // Image
     std::string image_format = "ppm"; // Format of the rendered image
     double aspect_ratio = 16.0 / 9.0;
     uint32_t image_height = 1080;
     uint32_t image_width = image_height * aspect_ratio;
+    uint32_t pixel_total_num = image_width * image_height;
 };
 class Application
 {

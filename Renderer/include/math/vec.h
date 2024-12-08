@@ -242,7 +242,7 @@ inline vec3<double> random_unit_vector()
             return p / sqrt(lensq);
     }
 }
-inline vec3<double> random_on_hemisphere(const vec3<double>& normal)
+inline vec3<double> random_vec_on_hemisphere(const vec3<double>& normal)
 {
     vec3<double> on_unit_sphere = random_unit_vector();
     if (on_unit_sphere.dot(normal) > 0.0) // In the same hemisphere as the normal

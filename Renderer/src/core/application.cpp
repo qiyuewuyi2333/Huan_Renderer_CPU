@@ -2,6 +2,7 @@
 #include "core/ray.h"
 #include "functional/log/logger.h"
 #include "functional/utils/image/image_generator.h"
+#include <atomic>
 #include <memory>
 #include "math/vec.h"
 #include "primitives/sphere.h"
@@ -78,11 +79,11 @@ math::vec3<double> Application::trace_ray(const Ray& ray, int depth)
     {
         return {0.0, 0.0, 0.0};
     }
-    auto result = m_scene.intersect(ray, {0, 10000});
+    auto result = m_scene.intersect(ray, {0.001, 10000});
 
     if (result.has_value())
     {
-        math::vec3<double> new_dir = math::random_on_hemisphere(result.get_normal());
+        math::vec3<double> new_dir = result.get_normal() + math::random_unit_vector();
         return 0.5 * trace_ray(Ray(result.get_intersect_point(), new_dir), depth - 1);
     }
 
@@ -94,9 +95,23 @@ math::vec3<double> Application::trace_ray(const Ray& ray, int depth)
 
 void Application::render_diffuse()
 {
+    std::atomic<int> finish = 0;
     m_thread_pool->parallel_for(m_image->get_width(), m_image->get_height(), [&](uint32_t x, uint32_t y) {
-        auto ray = m_camera->generate_ray({static_cast<double>(x), static_cast<double>(y)});
-        m_image->set_pixel(x, y, trace_ray(ray, m_render_setting.bounce_depth));
+        huan_renderer_cpu::math::vec3<double> target_color{0.0, 0.0, 0.0};
+        for (int i = 0; i < m_render_setting.sample_count; ++i)
+        {
+            auto ray = m_camera->generate_ray_random_sample({static_cast<double>(x), static_cast<double>(y)});
+            target_color += trace_ray(ray, m_render_setting.max_bounce_depth) * m_render_setting.sample_scale;
+        }
+        m_image->set_pixel(x, y, target_color);
+        finish++;
+        if (finish % 1000 == 0)
+        {
+            functional::Logger::get_instance()->info(
+                std::string("Progress: " + std::to_string(double(finish) / m_render_setting.pixel_total_num * 100) +
+                            " % pixels rendered.")
+                    .data());
+        }
     });
     m_thread_pool->wait();
 }

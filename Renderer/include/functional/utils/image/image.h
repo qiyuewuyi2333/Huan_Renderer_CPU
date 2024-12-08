@@ -25,6 +25,7 @@ class Image
     void set_pixel(uint32_t x, uint32_t y, double r, double g, double b);
     void set_pixel(uint32_t x, uint32_t y, const Color& color);
     Color get_pixel(uint32_t x, uint32_t y) const;
+    Color get_pixel(uint32_t x, uint32_t y);
     uint32_t get_width() const;
     uint32_t get_height() const;
 

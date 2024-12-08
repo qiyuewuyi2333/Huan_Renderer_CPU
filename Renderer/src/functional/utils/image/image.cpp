@@ -41,6 +41,11 @@ Color Image::get_pixel(uint32_t x, uint32_t y) const
     int index = x + y * m_width;
     return m_pixels[index];
 }
+Color Image::get_pixel(uint32_t x, uint32_t y)
+{
+    int index = x + y * m_width;
+    return m_pixels[index];
+}
 uint32_t Image::get_width() const
 {
     return m_width;
