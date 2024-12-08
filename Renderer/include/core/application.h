@@ -53,13 +53,9 @@ class Application
 
   public:
     void render();
-    void render_normal();
-    void render_anti_aliasing();
     void render_diffuse();
 
   private:
-    math::vec3<double> trace_ray(const Ray& ray, int depth);
-
   public:
     void initialize();
     void initialize_instance();

@@ -8,6 +8,16 @@ struct Ray
 {
     math::vec3<double> origin;
     math::vec3<double> direction;
+    Ray() : origin(0, 0, 0), direction(0, 0, 0)
+    {
+    }
+    Ray(const math::vec3<double>& origin, const math::vec3<double>& direction) : origin(origin), direction(direction)
+    {
+    }
+    Ray(math::vec3<double>&& origin, math::vec3<double>&& direction)
+        : origin(std::move(origin)), direction(std::move(direction))
+    {
+    }
 
     math::vec3<double> at(double t)
     {

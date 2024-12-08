@@ -1,7 +1,6 @@
 #pragma once
-#include "math/mat.h"
+#include "core/hittable_lists.h"
 #include "math/vec.h"
-#include "math/core.h"
 #include "functional/utils/image/image.h"
 #include "ray.h"
 #include <memory>
@@ -38,6 +37,8 @@ class Camera
     Camera(std::shared_ptr<huan_renderer_cpu::functional::Image> image, CameraType type = CameraType::Perspective,
            const math::vec3<double>& pos = {0.0f, 0.0f, 0.0f},
            const math::vec3<double>& view_point = {0.0f, 0.0f, -1.0f});
+
+    math::vec3<double> trace_ray(const Ray& ray, int depth, const HittableLists& scene);
     Ray generate_ray(const math::vec2<double>& pixel_coord, const math::vec2<double>& offset = {0.5, 0.5}) const;
     Ray generate_ray_random_sample(const math::vec2<double>& pixel_coord) const;
     math::vec3<double> sample_square() const;

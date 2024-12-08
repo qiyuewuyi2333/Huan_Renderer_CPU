@@ -221,6 +221,14 @@ class vec3
     {
         *this = normalized();
     }
+    inline bool is_near_zero() const
+    {
+        return (std::fabs(x) < 1e-8) && (std::fabs(y) < 1e-8) && (std::fabs(z) < 1e-8);
+    }
+    inline bool is_near_zero()
+    {
+        return (std::fabs(x) < 1e-8) && (std::fabs(y) < 1e-8) && (std::fabs(z) < 1e-8);
+    }
 
     inline static vec3 random()
     {
@@ -249,6 +257,10 @@ inline vec3<double> random_vec_on_hemisphere(const vec3<double>& normal)
         return on_unit_sphere;
     else
         return -on_unit_sphere;
+}
+inline vec3<double> reflect(const vec3<double>& v, const vec3<double>& n)
+{
+    return v - 2 * v.dot(n) * n;
 }
 
 template <typename T = double>

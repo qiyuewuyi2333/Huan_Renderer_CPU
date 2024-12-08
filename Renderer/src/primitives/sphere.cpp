@@ -1,11 +1,13 @@
 #include "primitives/sphere.h"
 #include "core/intersection.h"
+#include <memory>
 
 namespace huan_renderer_cpu
 {
 namespace primitives
 {
-Sphere::Sphere(const math::vec3<double>& center, double radius) : center(center), radius(radius)
+Sphere::Sphere(const math::vec3<double>& center, double radius, const std::shared_ptr<Material>& material)
+    : center(center), radius(radius), m_material(material)
 {
 }
 
@@ -26,7 +28,7 @@ Intersection Sphere::intersect(const Ray& ray, const math::Interval& interval) c
     {
         auto intersection_point = ray.at(t1);
         auto normal = (intersection_point - center) / radius;
-        auto inter = Intersection(intersection_point, normal);
+        auto inter = Intersection(t1, intersection_point, normal, m_material);
         inter.set_face_normal(ray, normal);
 
         return inter;
@@ -36,7 +38,7 @@ Intersection Sphere::intersect(const Ray& ray, const math::Interval& interval) c
     {
         auto intersection_point = ray.at(t1);
         auto normal = (intersection_point - center) / radius;
-        auto inter = Intersection(intersection_point, normal);
+        auto inter = Intersection(t1, intersection_point, normal, m_material);
         inter.set_face_normal(ray, normal);
 
         return inter;

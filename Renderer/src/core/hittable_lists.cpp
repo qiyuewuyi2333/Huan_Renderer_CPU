@@ -1,5 +1,6 @@
 
 #include "core/hittable_lists.h"
+#include "core/intersection.h"
 #include "math/interval.h"
 
 namespace huan_renderer_cpu
@@ -7,13 +8,19 @@ namespace huan_renderer_cpu
 
 Intersection HittableLists::intersect(const Ray& ray, const math::Interval& interval) const
 {
+    Intersection intersection = {};
     for (auto object : objects)
     {
         auto inter = object->intersect(ray, interval);
         if (inter.has_value())
-            return inter;
+        {
+            if (!intersection.has_value() || inter.get_time() < intersection.get_time())
+            {
+                intersection = inter;
+            }
+        }
     }
-    return {};
+    return intersection;
 }
 
 void HittableLists::clear()

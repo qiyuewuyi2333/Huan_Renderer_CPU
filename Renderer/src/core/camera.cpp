@@ -1,6 +1,7 @@
 #include "core/camera.h"
 #include "functional/utils/random.h"
 #include "math/vec.h"
+#include "core/material.h"
 
 namespace huan_renderer_cpu
 {
@@ -29,6 +30,31 @@ Camera::Camera(std::shared_ptr<huan_renderer_cpu::functional::Image> image, Came
     // Calculate the first pixel for view port, which is the uper-left from the view of camera
     viewport_upper_left = m_pos - math::vec3<double>(0, 0, focal_length) - viewport_u / 2 - viewport_v / 2;
     pixel00_loc = viewport_upper_left + 0.5 * (pixel_delta_u + pixel_delta_v);
+}
+math::vec3<double> Camera::trace_ray(const Ray& ray, int depth, const HittableLists& scene)
+{
+    if (depth <= 0)
+    {
+        return {0.0, 0.0, 0.0};
+    }
+    if (ray.direction.is_near_zero())
+    {
+        return math::vec3<double>{0.0, 0.0, 0.0};
+    }
+    const auto result = scene.intersect(ray, {0.001, 10000});
+
+    if (result.has_value())
+    {
+        Material* material = result.get_material().get();
+        math::vec3<double> attenuation;
+        Ray new_ray = material->scatter(ray, result, attenuation);
+        return attenuation * trace_ray(new_ray, depth - 1, scene);
+    }
+
+    math::vec3<double> unit_direction = ray.direction.normalized();
+    auto blue_percent = 0.5 * (unit_direction.y + 1.0);
+    return (1.0 - blue_percent) * math::vec3<double>{1.0, 1.0, 1.0} +
+           blue_percent * math::vec3<double>{0.53, 0.8, 0.92};
 }
 
 Ray Camera::generate_ray(const math::vec2<double>& pixel_coord, const math::vec2<double>& offset) const
