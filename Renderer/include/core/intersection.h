@@ -34,6 +34,10 @@ class Intersection
     {
         return m_t;
     }
+    inline bool is_front_face() const
+    {
+        return m_hit_front_face;
+    }
     inline const math::vec3<double>& get_normal()
     {
         return m_normal;

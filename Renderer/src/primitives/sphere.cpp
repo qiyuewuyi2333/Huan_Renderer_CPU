@@ -28,7 +28,7 @@ Intersection Sphere::intersect(const Ray& ray, const math::Interval& interval) c
     {
         auto intersection_point = ray.at(t1);
         auto normal = (intersection_point - center) / radius;
-        auto inter = Intersection(t1, intersection_point, normal, m_material);
+        auto inter = Intersection(t1, intersection_point, normal.normalized(), m_material);
         inter.set_face_normal(ray, normal);
 
         return inter;
@@ -38,7 +38,7 @@ Intersection Sphere::intersect(const Ray& ray, const math::Interval& interval) c
     {
         auto intersection_point = ray.at(t1);
         auto normal = (intersection_point - center) / radius;
-        auto inter = Intersection(t1, intersection_point, normal, m_material);
+        auto inter = Intersection(t1, intersection_point, normal.normalized(), m_material);
         inter.set_face_normal(ray, normal);
 
         return inter;

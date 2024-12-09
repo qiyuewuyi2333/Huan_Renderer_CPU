@@ -262,6 +262,15 @@ inline vec3<double> reflect(const vec3<double>& v, const vec3<double>& n)
 {
     return v - 2 * v.dot(n) * n;
 }
+inline vec3<double> refract(const vec3<double>& in_ray, const vec3<double>& n, const double etai_over_etao)
+{
+    double n_dot_i = n.dot(in_ray);
+    double k = 1 - etai_over_etao * etai_over_etao * (1 - n_dot_i * n_dot_i);
+    if (k < 0)
+        k = -k;
+    // normal and out_ray is opposite
+    return -sqrt(k) * n + etai_over_etao * (in_ray - n * n_dot_i);
+}
 
 template <typename T = double>
 class vec4

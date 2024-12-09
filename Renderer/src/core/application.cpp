@@ -1,6 +1,7 @@
 #include "core/application.h"
 #include "core/hittable_lists.h"
 #include "core/material.h"
+#include "core/materials/dielectric.h"
 #include "core/materials/lambertian.h"
 #include "core/materials/metal.h"
 #include "core/ray.h"
@@ -65,10 +66,13 @@ void Application::initialize()
 
     // init scene
 
+    // Material
     auto material_ground = std::make_shared<Lambertian>(math::vec3<double>{0.8, 0.8, 0.0});
     auto material_center = std::make_shared<Lambertian>(math::vec3<double>{0.1, 0.2, 0.5});
-    auto material_left = std::make_shared<Metal>(math::vec3<double>{0.8, 0.8, 0.8}, 0.3);
+    auto material_left = std::make_shared<Dielectric>(1.5);
     auto material_right = std::make_shared<Metal>(math::vec3<double>{0.8, 0.6, 0.2}, 1.0);
+
+    // add to scene
     m_scene.add(std::make_shared<primitives::Sphere>(math::vec3<double>{0.0, -100.5, -1.0}, 100.0, material_ground));
     m_scene.add(std::make_shared<primitives::Sphere>(math::vec3<double>{0.0, 0.0, -1.2}, 0.5, material_center));
     m_scene.add(std::make_shared<primitives::Sphere>(math::vec3<double>{-1.0, 0.0, -1.0}, 0.5, material_left));
