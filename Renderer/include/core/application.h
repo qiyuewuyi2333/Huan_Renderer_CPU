@@ -37,14 +37,14 @@ class Application
     Application& operator=(Application&&) = delete;
     Application& operator=(const Application&) = delete;
     ~Application() = default;
-    static void create_instance()
+    inline static void create_instance()
     {
         if (instance == nullptr)
         {
             instance = new Application();
         }
     }
-    static Application* get_instance()
+    inline static Application* get_instance()
     {
         if (!instance)
             return nullptr;

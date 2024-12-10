@@ -1,4 +1,5 @@
 #include "core/application.h"
+#include "core/camera.h"
 #include "core/hittable_lists.h"
 #include "core/material.h"
 #include "core/materials/dielectric.h"
@@ -7,8 +8,11 @@
 #include "core/ray.h"
 #include "functional/log/logger.h"
 #include "functional/utils/image/image_generator.h"
+#include <algorithm>
 #include <atomic>
+#include <cmath>
 #include <memory>
+#include "math/core.h"
 #include "math/vec.h"
 #include "primitives/sphere.h"
 
@@ -58,32 +62,59 @@ void Application::initialize()
 
     // init thread pool
     m_thread_pool = std::make_unique<functional::ThreadPool>(std::thread::hardware_concurrency());
+    functional::Logger::get_instance()->debug("ThreadPool initialized!");
     // init image
     m_image = std::make_shared<functional::Image>(m_render_setting.image_width, m_render_setting.image_height,
                                                   m_render_setting.aspect_ratio);
     // init camera
-    m_camera = std::make_unique<huan_renderer_cpu::Camera>(m_image);
+    CameraParameters camera_parameters{.fov = 90, .pos = {-2, 2, 1}, .lookat = {0, 0, -1}};
+    m_camera = std::make_unique<huan_renderer_cpu::Camera>(camera_parameters, m_image);
+    functional::Logger::get_instance()->debug("Camera initialized!");
 
     // init scene
-
     // Material
+    HittableLists camera_test_scene;
+    HittableLists material_test_scene;
+
     auto material_ground = std::make_shared<Lambertian>(math::vec3<double>{0.8, 0.8, 0.0});
     auto material_center = std::make_shared<Lambertian>(math::vec3<double>{0.1, 0.2, 0.5});
-    auto material_left = std::make_shared<Dielectric>(1.5);
+    auto material_left = std::make_shared<Dielectric>(1.50);
+    auto material_bubble = std::make_shared<Dielectric>(1.0 / 1.50);
     auto material_right = std::make_shared<Metal>(math::vec3<double>{0.8, 0.6, 0.2}, 1.0);
 
     // add to scene
-    m_scene.add(std::make_shared<primitives::Sphere>(math::vec3<double>{0.0, -100.5, -1.0}, 100.0, material_ground));
-    m_scene.add(std::make_shared<primitives::Sphere>(math::vec3<double>{0.0, 0.0, -1.2}, 0.5, material_center));
-    m_scene.add(std::make_shared<primitives::Sphere>(math::vec3<double>{-1.0, 0.0, -1.0}, 0.5, material_left));
-    m_scene.add(std::make_shared<primitives::Sphere>(math::vec3<double>{1.0, 0.0, -1.0}, 0.5, material_right));
+    material_test_scene.add(
+        std::make_shared<primitives::Sphere>(math::vec3<double>{0.0, -100.5, -1.0}, 100.0, material_ground));
+    material_test_scene.add(
+        std::make_shared<primitives::Sphere>(math::vec3<double>{0.0, 0.0, -1.2}, 0.5, material_center));
+    material_test_scene.add(
+        std::make_shared<primitives::Sphere>(math::vec3<double>{-1.0, 0.0, -1.0}, 0.5, material_left));
+    material_test_scene.add(
+        std::make_shared<primitives::Sphere>(math::vec3<double>{-1.0, 0.0, -1.0}, 0.4, material_bubble));
+    material_test_scene.add(
+        std::make_shared<primitives::Sphere>(math::vec3<double>{1.0, 0.0, -1.0}, 0.5, material_right));
+
+    auto camera_test_material_left = std::make_shared<Lambertian>(math::vec3<double>{0, 0, 1});
+    auto camera_test_material_right = std::make_shared<Lambertian>(math::vec3<double>{1, 0, 0});
+
+    double camera_test_len = std::cos(math::MY_PI / 4);
+    camera_test_scene.add(std::make_shared<primitives::Sphere>(math::vec3<double>{-camera_test_len, 0, -1},
+                                                               camera_test_len, camera_test_material_left));
+    camera_test_scene.add(std::make_shared<primitives::Sphere>(math::vec3<double>{camera_test_len, 0, -1},
+                                                               camera_test_len, camera_test_material_right));
+    // Set the scene
+    m_scene = std::move(material_test_scene);
+    functional::Logger::get_instance()->debug("Scene initialized!");
 }
 void Application::initialize_instance()
 {
     // init logger
     functional::Logger::create_instance();
+    functional::Logger::get_instance()->debug("Logger initialized!");
+
     // inti image generator
     functional::ImageGenerator::create_instance();
+    functional::Logger::get_instance()->debug("ImageGenerator initialized!");
 }
 
 void Application::save_image(const std::string& name)

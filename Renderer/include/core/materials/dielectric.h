@@ -11,6 +11,9 @@ class Dielectric : public Material
     virtual Ray scatter(const Ray& in_ray, const Intersection& rec, math::vec3<double>& attenuation) const;
 
   private:
+    static double reflectance(double cosine, double refraction_index);
+
+  private:
     double m_refraction_index;
 };
 } // namespace huan_renderer_cpu

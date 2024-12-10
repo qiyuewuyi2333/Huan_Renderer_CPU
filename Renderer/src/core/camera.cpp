@@ -2,6 +2,7 @@
 #include "functional/utils/random.h"
 #include "math/vec.h"
 #include "core/material.h"
+#include <cmath>
 
 namespace huan_renderer_cpu
 {
@@ -17,18 +18,51 @@ namespace huan_renderer_cpu
  */
 Camera::Camera(std::shared_ptr<huan_renderer_cpu::functional::Image> image, CameraType type,
                const math::vec3<double>& pos, const math::vec3<double>& view_point)
-    : m_image(image), m_type(type), m_pos(pos), m_view_point(view_point), m_world_up({0.0f, 1.0f, 0.0f}),
+    : m_image(image), m_type(type), m_pos(pos), m_lookat(view_point), m_world_up({0.0, 1.0, 0.0}),
       viewport_width(viewport_height * (static_cast<double>(m_image->get_width()) / m_image->get_height())),
-      m_up({0.0f, 1.0f, 0.0f})
+      m_up({0.0, 1.0, 0.0})
 {
-    m_fov = 90.0f;
+    m_focal_length = (m_lookat - m_pos).length();
+    double theta = degrees_to_radians(m_fov);
+    double viewport_height = 2 * std::tan(theta / 2) * m_focal_length;
+    double viewport_width = viewport_height * (static_cast<double>(m_image->get_width()) / m_image->get_height());
+
+    // NOTE: Make Camera coordinate system like a Right hand coordinate system
+    m_w = ((m_pos - m_lookat).normalized());
+    m_u = cross(m_world_up, m_w).normalized();
+    m_v = cross(m_w, m_u);
+
     m_aspect = static_cast<double>(m_image->get_width()) / static_cast<double>(m_image->get_height());
-    viewport_u = math::vec3<double>(viewport_width, 0, 0);
-    viewport_v = math::vec3<double>(0, -viewport_height, 0);
+    viewport_u = viewport_width * m_u;     // Vector across viewport horizontal edge
+    viewport_v = viewport_height * (-m_v); // Vector down viewport vertical edge
     pixel_delta_u = viewport_u / static_cast<double>(m_image->get_width());
     pixel_delta_v = viewport_v / static_cast<double>(m_image->get_height());
     // Calculate the first pixel for view port, which is the uper-left from the view of camera
-    viewport_upper_left = m_pos - math::vec3<double>(0, 0, focal_length) - viewport_u / 2 - viewport_v / 2;
+    viewport_upper_left = m_pos - m_focal_length * m_w - viewport_u / 2 - viewport_v / 2;
+    pixel00_loc = viewport_upper_left + 0.5 * (pixel_delta_u + pixel_delta_v);
+}
+Camera::Camera(const CameraParameters& parameters, std::shared_ptr<huan_renderer_cpu::functional::Image>& image)
+    : m_fov(parameters.fov), m_pos(parameters.pos), m_lookat(parameters.lookat), m_world_up(parameters.world_up),
+      m_image(image)
+{
+    m_focal_length = (m_lookat - m_pos).length();
+    double theta = degrees_to_radians(m_fov);
+    viewport_height = 2 * std::tan(theta / 2) * m_focal_length;
+    viewport_width = viewport_height * (static_cast<double>(m_image->get_width()) / m_image->get_height());
+
+    // NOTE: Make Camera coordinate system like a Right hand coordinate system
+    m_w = ((m_pos - m_lookat).normalized());
+    m_u = cross(m_world_up, m_w).normalized();
+    m_v = cross(m_w, m_u);
+
+    m_aspect = static_cast<double>(m_image->get_width()) / static_cast<double>(m_image->get_height());
+
+    viewport_u = viewport_width * m_u;     // Vector across viewport horizontal edge
+    viewport_v = viewport_height * (-m_v); // Vector down viewport vertical edge
+    pixel_delta_u = viewport_u / static_cast<double>(m_image->get_width());
+    pixel_delta_v = viewport_v / static_cast<double>(m_image->get_height());
+    // Calculate the first pixel for view port, which is the uper-left from the view of camera
+    viewport_upper_left = m_pos - (m_focal_length * m_w) - (viewport_u / 2) - (viewport_v / 2);
     pixel00_loc = viewport_upper_left + 0.5 * (pixel_delta_u + pixel_delta_v);
 }
 math::vec3<double> Camera::trace_ray(const Ray& ray, int depth, const HittableLists& scene)

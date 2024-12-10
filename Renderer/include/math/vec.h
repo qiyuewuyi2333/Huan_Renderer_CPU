@@ -204,7 +204,13 @@ class vec3
         return x * other.x + y * other.y + z * other.z;
     }
 
-    // Cross product
+    /**
+     * @brief From lhs to rhs, conform the right-hand law
+     *
+     * @param lhs
+     * @param rhs
+     * @return
+     */
     constexpr friend vec3 cross(const vec3& lhs, const vec3& rhs)
     {
         return vec3{lhs.y * rhs.z - lhs.z * rhs.y, lhs.z * rhs.x - lhs.x * rhs.z, lhs.x * rhs.y - lhs.y * rhs.x};
@@ -220,6 +226,14 @@ class vec3
     void normalize()
     {
         *this = normalized();
+    }
+    inline T length() const
+    {
+        return std::sqrt(x * x + y * y + z * z);
+    }
+    inline T length_squared() const
+    {
+        return x * x + y * y + z * z;
     }
     inline bool is_near_zero() const
     {
