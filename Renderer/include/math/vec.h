@@ -3,6 +3,7 @@
 #include <cmath>
 #include <type_traits>
 #include "functional/utils/random.h"
+#include "math/core.h"
 
 namespace huan_renderer_cpu
 {
@@ -271,6 +272,21 @@ inline vec3<double> random_vec_on_hemisphere(const vec3<double>& normal)
         return on_unit_sphere;
     else
         return -on_unit_sphere;
+}
+inline vec3<double> random_vec_in_unit_circle()
+{
+    double r = random_double();
+    double theta = random_double(0, 2 * MY_PI);
+    return {r * std::cos(theta), r * std::sin(theta), 0};
+}
+
+inline math::vec3<double> random_color()
+{
+    return {random_double(), random_double(), random_double()};
+}
+inline math::vec3<double> random_color(double min, double max)
+{
+    return {random_double(min, max), random_double(min, max), random_double(min, max)};
 }
 inline vec3<double> reflect(const vec3<double>& v, const vec3<double>& n)
 {

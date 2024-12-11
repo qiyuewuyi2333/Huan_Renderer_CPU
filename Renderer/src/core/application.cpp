@@ -5,10 +5,8 @@
 #include "core/materials/dielectric.h"
 #include "core/materials/lambertian.h"
 #include "core/materials/metal.h"
-#include "core/ray.h"
 #include "functional/log/logger.h"
 #include "functional/utils/image/image_generator.h"
-#include <algorithm>
 #include <atomic>
 #include <cmath>
 #include <memory>
@@ -67,7 +65,14 @@ void Application::initialize()
     m_image = std::make_shared<functional::Image>(m_render_setting.image_width, m_render_setting.image_height,
                                                   m_render_setting.aspect_ratio);
     // init camera
-    CameraParameters camera_parameters{.fov = 90, .pos = {-2, 2, 1}, .lookat = {0, 0, -1}};
+
+    CameraParameters camera_parameters{
+        .fov = 20,
+        .pos = {13.0, 2.0, 3.0},
+        .lookat = {0.0, 0.0, 0.0},
+        .focus_dist = 10.0,
+        .defocus_angle = 0.6,
+    };
     m_camera = std::make_unique<huan_renderer_cpu::Camera>(camera_parameters, m_image);
     functional::Logger::get_instance()->debug("Camera initialized!");
 
@@ -75,6 +80,7 @@ void Application::initialize()
     // Material
     HittableLists camera_test_scene;
     HittableLists material_test_scene;
+    HittableLists big_random_scene;
 
     auto material_ground = std::make_shared<Lambertian>(math::vec3<double>{0.8, 0.8, 0.0});
     auto material_center = std::make_shared<Lambertian>(math::vec3<double>{0.1, 0.2, 0.5});
@@ -102,8 +108,63 @@ void Application::initialize()
                                                                camera_test_len, camera_test_material_left));
     camera_test_scene.add(std::make_shared<primitives::Sphere>(math::vec3<double>{camera_test_len, 0, -1},
                                                                camera_test_len, camera_test_material_right));
+
+    // 地面
+    auto ground_material = std::make_shared<Lambertian>(math::vec3<double>{0.5, 0.5, 0.5});
+    big_random_scene.add(
+        std::make_shared<primitives::Sphere>(math::vec3<double>{0.0, -1000.0, 0.0}, 1000.0, ground_material));
+
+    // 随机小球
+    for (int a = -11; a < 11; a++)
+    {
+        for (int b = -11; b < 11; b++)
+        {
+            double choose_mat = random_double();
+            double rand_x = random_double();
+            double rand_z = random_double();
+            math::vec3<double> center{static_cast<double>(a) + 0.9 * rand_x, 0.2,
+                                      static_cast<double>(b) + 0.9 * rand_z};
+
+            if ((center - math::vec3<double>{4.0, 0.2, 0.0}).length() > 0.9)
+            {
+                std::shared_ptr<Material> sphere_material;
+
+                if (choose_mat < 0.8)
+                {
+                    // 漫反射材质
+                    auto albedo = math::random_color() * math::random_color();
+                    sphere_material = std::make_shared<Lambertian>(albedo);
+                    big_random_scene.add(std::make_shared<primitives::Sphere>(center, 0.2, sphere_material));
+                }
+                else if (choose_mat < 0.95)
+                {
+                    // 金属材质
+                    auto albedo = math::random_color(0.5, 1.0); // 需要你实现可指定范围的 random_color
+                    double fuzz = random_double() * 0.5;
+                    sphere_material = std::make_shared<Metal>(albedo, fuzz);
+                    big_random_scene.add(std::make_shared<primitives::Sphere>(center, 0.2, sphere_material));
+                }
+                else
+                {
+                    // 玻璃材质
+                    sphere_material = std::make_shared<Dielectric>(1.5);
+                    big_random_scene.add(std::make_shared<primitives::Sphere>(center, 0.2, sphere_material));
+                }
+            }
+        }
+    }
+
+    // 三个大球
+    auto material1 = std::make_shared<Dielectric>(1.5);
+    big_random_scene.add(std::make_shared<primitives::Sphere>(math::vec3<double>{0.0, 1.0, 0.0}, 1.0, material1));
+
+    auto material2 = std::make_shared<Lambertian>(math::vec3<double>{0.4, 0.2, 0.1});
+    big_random_scene.add(std::make_shared<primitives::Sphere>(math::vec3<double>{-4.0, 1.0, 0.0}, 1.0, material2));
+
+    auto material3 = std::make_shared<Metal>(math::vec3<double>{0.7, 0.6, 0.5}, 0.0);
+    big_random_scene.add(std::make_shared<primitives::Sphere>(math::vec3<double>{4.0, 1.0, 0.0}, 1.0, material3));
     // Set the scene
-    m_scene = std::move(material_test_scene);
+    m_scene = std::move(big_random_scene);
     functional::Logger::get_instance()->debug("Scene initialized!");
 }
 void Application::initialize_instance()

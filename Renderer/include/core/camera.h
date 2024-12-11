@@ -19,6 +19,10 @@ struct CameraParameters
     math::vec3<double> pos{0, 0, 0};
     math::vec3<double> lookat{0, 0, -1};
     math::vec3<double> world_up{0, 1, 0};
+
+    // focal relevant
+    double focus_dist = 3.4;
+    double defocus_angle = 10.0;
 };
 /**
  * @brief 241027 Now it's a really simple camera, whose pos is original point and looking along with the negative z-axis
@@ -47,14 +51,15 @@ class Camera
         Vertical,
         Horizontal
     };
-    Camera(std::shared_ptr<huan_renderer_cpu::functional::Image> image, CameraType type = CameraType::Perspective,
-           const math::vec3<double>& pos = {0.0f, 0.0f, 0.0f}, const math::vec3<double>& lookat = {0.0f, 0.0f, -1.0f});
     Camera(const CameraParameters& parameters, std::shared_ptr<huan_renderer_cpu::functional::Image>& image);
 
     math::vec3<double> trace_ray(const Ray& ray, int depth, const HittableLists& scene);
     Ray generate_ray(const math::vec2<double>& pixel_coord, const math::vec2<double>& offset = {0.5, 0.5}) const;
     Ray generate_ray_random_sample(const math::vec2<double>& pixel_coord) const;
     math::vec3<double> sample_square() const;
+
+  private:
+    math::vec3<double> defocus_disk_sample() const;
 
   private:
     std::shared_ptr<huan_renderer_cpu::functional::Image> m_image;
@@ -68,9 +73,14 @@ class Camera
     /**
      * @brief The focal length is the distance from the optical center of the lens to the imaging plane(viewport)
      */
-    double m_focal_length = 1.0;
     double viewport_height = 2.0;
     double viewport_width;
+
+    // Defocus: focal relevant
+    double m_defocus_angle = 0; // Variation angle of rays through each pixel
+    double m_focus_dist = 10;   // focal length: Distance from camera lookfrom point to plane of perfect plane
+    math::vec3<double> m_defocus_disk_u;
+    math::vec3<double> m_defocus_disk_v;
 
     /**
      * @brief Camera coordinate vector
