@@ -39,7 +39,7 @@ $ cd Huan_Renderer_CPU
 
 ## Output example
 
-[Final](./Final_scene.ppm)
+![Final](./Final_scene.ppm)
 
 ## Contributing
 
